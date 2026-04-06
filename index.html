@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinWise — Your Financial Calculator Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  body {
+  background: #000000;
+  color: #ffffff;
+  font-family: 'DM Sans', sans-serif;
+}
+  body {
+  background-color: #000000 !important;
+  color: #ffffff;
+}
+  :root {
+    --bg: #0
+    --bg3: #1a1a26;
+    --card: #16161f;
+    --card2: #1e1e2c;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --accent: #c8f542;
+    --accent2: #7b5cf5;
+    --accent3: #f5a623;
+    --accent4: #42f5c8;
+    --text: #f0f0f8;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --red: #f55c5c;
+    --green: #42f5a0;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .logo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; }
+
+  .nav-pills {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 4px;
+  }
+  .nav-pill {
+    padding: 5px 14px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-family: var(--sans);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-pill.active, .nav-pill:hover {
+    background: var(--card2);
+    color: var(--text);
+  }
+  .nav-pill.active { color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 5rem 2rem 3rem;
+    overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 700px; height: 300px;
+    background: radial-gradient(ellipse at top, rgba(200,245,66,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(200,245,66,0.08);
+    border: 1px solid rgba(200,245,66,0.2);
+    border-radius: 40px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 1rem;
+    color: var(--text2);
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* SERVICE CARDS GRID */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    max-width: 960px;
+    margin: 0 auto 3rem;
+    padding: 0 1.5rem;
+  }
+  .service-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    font-family: var(--sans);
+  }
+  .service-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .service-btn:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .service-btn.active { border-color: var(--accent); }
+  .service-btn.active::before { background: rgba(200,245,66,0.04); opacity: 1; }
+  .svc-icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+  .svc-name { font-family: var(--display); font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .svc-desc { font-size: 11px; color: var(--text3); line-height: 1.4; }
+  .svc-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    font-size: 9px;
+    font-family: var(--mono);
+    background: rgba(245,166,35,0.15);
+    color: var(--accent3);
+    border-radius: 4px;
+    padding: 2px 5px;
+    letter-spacing: 0.05em;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem 6rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeUp 0.35s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* FORM ELEMENTS */
+  label { font-size: 12px; color: var(--text2); font-weight: 400; display: block; margin-bottom: 5px; font-family: var(--mono); }
+  select, input[type="text"], input[type="number"] {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select:focus, input[type="text"]:focus, input[type="number"]:focus { border-color: var(--border2); }
+  select option { background: var(--bg2); }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .form-group { margin-bottom: 0; }
+
+  /* SLIDER */
+  .slider-group { margin-bottom: 1rem; }
+  .slider-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .slider-label { font-size: 12px; color: var(--text2); font-family: var(--mono); }
+  .slider-val { font-size: 14px; font-weight: 500; color: var(--accent); font-family: var(--mono); }
+  input[type="range"] {
+    width: 100%; height: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--bg3);
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(200,245,66,0.15);
+    transition: box-shadow 0.2s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 7px rgba(200,245,66,0.2); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { background: #d4f763; transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-danger { background: rgba(245,92,92,0.15); color: var(--red); border: 1px solid rgba(245,92,92,0.2); }
+  .btn-danger:hover { background: rgba(245,92,92,0.25); }
+
+  /* RESULT BOXES */
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 1rem; }
+  .result-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+  }
+  .result-box.highlight { border-color: rgba(200,245,66,0.3); background: rgba(200,245,66,0.04); }
+  .result-box.danger { border-color: rgba(245,92,92,0.3); background: rgba(245,92,92,0.04); }
+  .result-box.info { border-color: rgba(123,92,245,0.3); background: rgba(123,92,245,0.04); }
+  .res-label { font-size: 10px; color: var(--text3); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .res-value { font-size: 1.25rem; font-weight: 700; font-family: var(--display); color: var(--text); line-height: 1.2; }
+  .res-value.accent { color: var(--accent); }
+  .res-value.danger { color: var(--red); }
+  .res-value.green { color: var(--green); }
+  .res-sub { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+  /* LOAN TABS */
+  .loan-tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .loan-tab {
+    padding: 6px 14px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-family: var(--mono);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text2);
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .loan-tab:hover { border-color: var(--border2); color: var(--text); }
+  .loan-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(200,245,66,0.06); }
+
+  /* AMORTIZATION TABLE */
+  .table-wrap { overflow-x: auto; margin-top: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  th { background: var(--bg3); padding: 8px 12px; text-align: left; color: var(--text3); font-weight: 400; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+  td { padding: 7px 12px; border-top: 1px solid var(--border); color: var(--text); }
+  tr:hover td { background: var(--bg3); }
+  td.green { color: var(--green); }
+  td.red { color: var(--red); }
+  td.accent { color: var(--accent); }
+
+  /* INFLATION ITEMS */
+  .inflation-item {
+    display: grid;
+    grid-template-columns: 1fr 100px 100px 90px auto;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    transition: border 0.2s;
+  }
+  .inflation-item:hover { border-color: var(--border2); }
+  .inflation-result { font-family: var(--mono); font-size: 12px; text-align: right; }
+  .inflation-result.pos { color: var(--red); }
+  .inflation-result.neg { color: var(--green); }
+
+  /* TAX BREAKDOWN */
+  .tax-slab-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  .tax-slab-row:last-child { border-bottom: none; }
+  .slab-range { color: var(--text2); }
+  .slab-amount { color: var(--accent); font-weight: 500; }
+  .slab-rate { color: var(--text3); font-size: 10px; }
+
+  /* SIP CALCULATOR */
+  .sip-viz {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+    height: 80px;
+    margin: 1rem 0 0.5rem;
+  }
+  .sip-bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.4s ease;
+    min-height: 4px;
+  }
+  .sip-bar.invested { background: var(--bg3); }
+  .sip-bar.returns { background: var(--accent); opacity: 0.8; }
+
+  /* CURRENCY CONVERTER */
+  .cc-row { display: flex; align-items: center; gap: 10px; }
+  .cc-arrow { color: var(--accent); font-size: 1.2rem; flex-shrink: 0; }
+
+  /* FD CALCULATOR */
+  .fd-progress {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .fd-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 4px;
+    transition: width 0.4s;
+  }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .section-title-main {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .section-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* PILL TAG */
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+  .pill-green { background: rgba(66,245,160,0.1); color: var(--green); }
+  .pill-red { background: rgba(245,92,92,0.1); color: var(--red); }
+  .pill-accent { background: rgba(200,245,66,0.1); color: var(--accent); }
+  .pill-purple { background: rgba(123,92,245,0.1); color: var(--accent2); }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+    .nav-pills { display: none; }
+    .inflation-item { grid-template-columns: 1fr 80px 80px 70px auto; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Currency Converter</h2>
+
+  <input type="number" id="amount" placeholder="Enter amount">
+
+  <select id="fromCurrency">
+    <option value="USD">USD</option>
+    <option value="INR">INR</option>
+    <option value="EUR">EUR</option>
+  </select>
+
+  <select id="toCurrency">
+    <option value="INR">INR</option>
+    <option value="USD">USD</option>
+    <option value="EUR">EUR</option>
+  </select>
+
+  <button onclick="convertCurrency()">Convert</button>
+
+  <p id="result"></p>
+</div>
+<nav>
+  <div class="logo"><span class="logo-dot"></span> FinWise</div>
+  <div class="nav-pills" id="navPills">
+    <button class="nav-pill active" onclick="showPanel('tax')">Tax</button>
+    <button class="nav-pill" onclick="showPanel('loan')">Loans</button>
+    <button class="nav-pill" onclick="showPanel('inflation')">Inflation</button>
+    <button class="nav-pill" onclick="showPanel('sip')">SIP</button>
+    <button class="nav-pill" onclick="showPanel('fd')">FD / RD</button>
+    <button class="nav-pill" onclick="showPanel('currency')">Currency</button>
+    <button class="nav-pill" onclick="showPanel('networth')">Net Worth</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">✦ 7 financial tools in one place</div>
+  <h1>Your money,<br><span>calculated.</span></h1>
+  <p>Tax, loans, inflation, SIP returns, FD/RD, currency conversion, and net worth — all in one free suite.</p>
+</div>
+
+<!-- SERVICE BUTTONS -->
+<div class="services-grid">
+  <div class="service-btn active" onclick="showPanel('tax'); setActive(this)">
+    <span class="svc-icon">🧾</span>
+    <div class="svc-name">Tax Calculator</div>
+    <div class="svc-desc">Income tax by country with slab breakdown</div>
+  </div>
+  <div class="service-btn" onclick="showPanel('loan'); setActive(this)">
+    <span class="svc-icon">🏦</span>
+    <div class="svc-name">Loan EMI</div>
+    <div class="svc-desc">Home, personal, commercial & gold loans</div>
+  </div>
+  <div class="service-btn" onclick="showPanel('inflation'); setActive(this)">
+    <span class="svc-icon">📈</span>
+    <div class="svc-name">Inflation Tracker</div>
+    <div class="svc-desc">Compare old vs new prices of any item</div>
+  </div>
+  <div class="service-btn" onclick="showPanel('sip'); setActive(this)">
+    <span class="svc-icon">💹</span>
+    <div class="svc-name">SIP Calculator</div>
+    <div class="svc-desc">Mutual fund SIP returns projector</div>
+    <span class="svc-badge">POPULAR</span>
+  </div>
+  <div class="service-btn" onclick="showPanel('fd'); setActive(this)">
+    <span class="svc-icon">🏧</span>
+    <div class="svc-name">FD / RD</div>
+    <div class="svc-desc">Fixed & recurring deposit maturity</div>
+    <span class="svc-badge">POPULAR</span>
+  </div>
+  <div class="service-btn" onclick="showPanel('currency'); setActive(this)">
+    <span class="svc-icon">💱</span>
+    <div class="svc-name">Currency</div>
+    <div class="svc-desc">Live-rate conversion across 20+ currencies</div>
+  </div>
+  <div class="service-btn" onclick="showPanel('networth'); setActive(this)">
+    <span class="svc-icon">📊</span>
+    <div class="svc-name">Net Worth</div>
+    <div class="svc-desc">Assets minus liabilities tracker</div>
+    <span class="svc-badge">NEW</span>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ============================================================ TAX PANEL -->
+<div class="panel active" id="panel-tax">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">Tax Calculator</div>
+      <div class="section-subtitle">Income tax estimation with slab breakdown</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span> Income Details</div>
+    <div class="form-grid" style="margin-bottom:12px;">
+      <div class="form-group">
+        <label>Country</label>
+        <select id="taxCountry" onchange="calcTax()">
+          <option value="india">India</option>
+          <option value="usa">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="australia">Australia</option>
+          <option value="canada">Canada</option>
+          <option value="germany">Germany</option>
+          <option value="uae">UAE (0% tax)</option>
+          <option value="singapore">Singapore</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tax Year / Regime</label>
+        <select id="taxRegime" onchange="calcTax()">
+          <option value="new">New Regime (Default)</option>
+          <option value="old">Old Regime</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Annual Income</label>
+        <input type="number" id="taxIncome" value="1200000" oninput="calcTax()" placeholder="e.g. 1200000">
+      </div>
+      <div class="form-group">
+        <label>Deductions / Exemptions (80C etc.)</label>
+        <input type="number" id="taxDeductions" value="150000" oninput="calcTax()" placeholder="e.g. 150000">
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="taxResultCard">
+    <div class="card-title"><span class="card-title-dot"></span> Tax Estimate</div>
+    <div class="result-grid" id="taxResults"></div>
+    <hr class="divider">
+    <div class="card-title" style="margin-bottom:0.75rem;"><span class="card-title-dot"></span> Slab Breakdown</div>
+    <div id="taxSlabs" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);"></div>
+  </div>
+</div>
+
+<!-- ============================================================ LOAN PANEL -->
+<div class="panel" id="panel-loan">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">Loan EMI Calculator</div>
+      <div class="section-subtitle">Monthly payment plan with amortization</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="loan-tabs">
+      <button class="loan-tab active" onclick="setLoanType('home',this)">🏠 Home</button>
+      <button class="loan-tab" onclick="setLoanType('personal',this)">👤 Personal</button>
+      <button class="loan-tab" onclick="setLoanType('commercial',this)">🏢 Commercial</button>
+      <button class="loan-tab" onclick="setLoanType('gold',this)">🥇 Gold</button>
+    </div>
+
+    <div class="form-grid" style="margin-bottom:1rem;">
+      <div class="form-group">
+        <label>Loan Amount (₹)</label>
+        <input type="number" id="loanAmount" value="2500000" oninput="calcLoan()">
+      </div>
+      <div class="form-group">
+        <label>Loan Tenure (years)</label>
+        <input type="number" id="loanTenure" value="20" min="1" max="30" oninput="calcLoan()">
+      </div>
+    </div>
+
+    <div class="slider-group">
+      <div class="slider-row">
+        <span class="slider-label">Annual Interest Rate</span>
+        <span class="slider-val" id="loanRateVal">8.5%</span>
+      </div>
+      <input type="range" id="loanRate" min="1" max="30" step="0.1" value="8.5" oninput="updateLoanRate()">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;">
+        <span>1%</span><span>30%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span> EMI Breakdown</div>
+    <div class="result-grid" id="loanResults"></div>
+    <hr class="divider">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:8px;">
+      <div class="card-title" style="margin:0;"><span class="card-title-dot"></span> Amortization Schedule</div>
+      <button class="btn btn-ghost" onclick="toggleAmort()" id="amortBtn" style="font-size:11px;padding:6px 12px;">Show table</button>
+    </div>
+    <div id="amortTable" class="hidden"></div>
+  </div>
+</div>
+
+<!-- ============================================================ INFLATION PANEL -->
+<div class="panel" id="panel-inflation">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">Inflation Tracker</div>
+      <div class="section-subtitle">Compare price changes of everyday items</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span> Add Items to Compare</div>
+    <div id="inflationItems"></div>
+    <button class="btn btn-primary" onclick="addInflationItem()" style="margin-top:8px;">+ Add item</button>
+  </div>
+
+  <div class="card" id="inflationSummaryCard">
+    <div class="card-title"><span class="card-title-dot"></span> Summary</div>
+    <div class="result-grid" id="inflationSummary"></div>
+  </div>
+</div>
+
+<!-- ============================================================ SIP PANEL -->
+<div class="panel" id="panel-sip">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">SIP Calculator</div>
+      <div class="section-subtitle">Systematic Investment Plan — mutual fund returns</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="form-grid" style="margin-bottom:1rem;">
+      <div class="form-group">
+        <label>Monthly SIP Amount (₹)</label>
+        <input type="number" id="sipAmount" value="5000" oninput="calcSIP()">
+      </div>
+      <div class="form-group">
+        <label>Investment Period (years)</label>
+        <input type="number" id="sipYears" value="10" min="1" max="40" oninput="calcSIP()">
+      </div>
+    </div>
+    <div class="slider-group">
+      <div class="slider-row">
+        <span class="slider-label">Expected Annual Return</span>
+        <span class="slider-val" id="sipRateVal">12%</span>
+      </div>
+      <input type="range" id="sipRate" min="1" max="30" step="0.5" value="12" oninput="updateSIPRate()">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span> Projected Returns</div>
+    <div class="result-grid" id="sipResults"></div>
+    <div class="sip-viz" id="sipViz"></div>
+    <div style="display:flex;gap:12px;font-size:11px;font-family:var(--mono);color:var(--text3);">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--bg3);border-radius:2px;display:inline-block;"></span>Invested</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--accent);border-radius:2px;display:inline-block;opacity:0.8;"></span>Returns</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ FD/RD PANEL -->
+<div class="panel" id="panel-fd">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">FD / RD Calculator</div>
+      <div class="section-subtitle">Fixed & recurring deposit maturity value</div>
+    </div>
+  </div>
+  <div class="loan-tabs" style="padding:0 0 0.5rem;">
+    <button class="loan-tab active" onclick="setFDType('fd',this)">🏦 Fixed Deposit</button>
+    <button class="loan-tab" onclick="setFDType('rd',this)">📅 Recurring Deposit</button>
+  </div>
+  <div class="card">
+    <div class="form-grid" style="margin-bottom:1rem;">
+      <div class="form-group">
+        <label id="fdAmountLabel">Principal Amount (₹)</label>
+        <input type="number" id="fdAmount" value="100000" oninput="calcFD()">
+      </div>
+      <div class="form-group">
+        <label>Tenure (months)</label>
+        <input type="number" id="fdTenure" value="24" min="1" oninput="calcFD()">
+      </div>
+    </div>
+    <div class="slider-group">
+      <div class="slider-row">
+        <span class="slider-label">Annual Interest Rate</span>
+        <span class="slider-val" id="fdRateVal">7%</span>
+      </div>
+      <input type="range" id="fdRate" min="1" max="15" step="0.25" value="7" oninput="updateFDRate()">
+    </div>
+    <div class="form-group">
+      <label>Compounding Frequency</label>
+      <select id="fdFreq" onchange="calcFD()">
+        <option value="4">Quarterly</option>
+        <option value="12">Monthly</option>
+        <option value="2">Half-yearly</option>
+        <option value="1">Yearly</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span> Maturity Details</div>
+    <div class="result-grid" id="fdResults"></div>
+    <div style="margin-top:1rem;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:4px;">
+        <span>Progress to maturity</span>
+        <span id="fdProgressLabel">100%</span>
+      </div>
+      <div class="fd-progress"><div class="fd-progress-fill" id="fdProgressBar" style="width:100%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ CURRENCY PANEL -->
+<div class="panel" id="panel-currency">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">Currency Converter</div>
+      <div class="section-subtitle">Approximate rates — update before financial decisions</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="form-group" style="margin-bottom:1rem;">
+      <label>Amount</label>
+      <input type="number" id="ccAmount" value="1000" oninput="calcCurrency()">
+    </div>
+    <div class="cc-row">
+      <div style="flex:1;" class="form-group">
+        <label>From</label>
+        <select id="ccFrom" onchange="calcCurrency()"></select>
+      </div>
+      <div class="cc-arrow" style="margin-top:18px;">⇄</div>
+      <div style="flex:1;" class="form-group">
+        <label>To</label>
+        <select id="ccTo" onchange="calcCurrency()"></select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="card-title-dot"></span> Conversion Result</div>
+    <div class="result-grid" id="ccResults"></div>
+    <hr class="divider">
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);">* Approximate reference rates. Always verify with your bank or broker before transactions.</div>
+  </div>
+</div>
+
+<!-- ============================================================ NET WORTH PANEL -->
+<div class="panel" id="panel-networth">
+  <div class="section-header">
+    <div>
+      <div class="section-title-main">Net Worth Tracker</div>
+      <div class="section-subtitle">Assets minus liabilities = your real wealth</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div class="card">
+      <div class="card-title"><span class="card-title-dot"></span> Assets</div>
+      <div id="assetList"></div>
+      <button class="btn btn-primary" onclick="addNWItem('asset')" style="margin-top:8px;font-size:12px;padding:7px 14px;">+ Add asset</button>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--red);"><span class="card-title-dot" style="background:var(--red);"></span> Liabilities</div>
+      <div id="liabilityList"></div>
+      <button class="btn btn-danger" onclick="addNWItem('liability')" style="margin-top:8px;font-size:12px;padding:7px 14px;">+ Add liability</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:10px;">
+    <div class="card-title"><span class="card-title-dot"></span> Net Worth Summary</div>
+    <div class="result-grid" id="nwResults"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<footer>FinWise — built for financial clarity &nbsp;·&nbsp; All calculations are estimates only &nbsp;·&nbsp; Not financial advice</footer>
+
+<script>
+// ==================== UTILITIES ====================
+const fmt = (n,sym='₹') => sym + Math.abs(Math.round(n)).toLocaleString('en-IN');
+const fmtDec = (n,d=2) => n.toFixed(d);
+const pct = (n) => fmtDec(n,2) + '%';
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-pill').forEach((p,i) => {
+    p.classList.toggle('active', p.textContent.toLowerCase().includes(id.substring(0,3)));
+  });
+}
+function setActive(el) {
+  document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ==================== TAX ====================
+const TAX_DATA = {
+  india: {
+    sym: '₹', name: 'India',
+    new: { slabs: [[0,300000,0],[300000,600000,5],[600000,900000,10],[900000,1200000,15],[1200000,1500000,20],[1500000,Infinity,30]], rebate87A: 25000, rebateLimit: 700000, surcharges: [[5000000,10],[10000000,15],[20000000,25]], cess: 4, stdDed: 75000 },
+    old: { slabs: [[0,250000,0],[250000,500000,5],[500000,1000000,20],[1000000,Infinity,30]], rebate87A: 12500, rebateLimit: 500000, surcharges: [[5000000,10],[10000000,15],[20000000,25]], cess: 4, stdDed: 50000 }
+  },
+  usa: { sym: '$', name: 'USA (Single Filer 2024)', slabs: [[0,11600,10],[11600,47150,12],[47150,100525,22],[100525,191950,24],[191950,243725,32],[243725,609350,35],[609350,Infinity,37]], stdDed: 14600 },
+  uk: { sym: '£', name: 'UK', slabs: [[0,12570,0],[12570,50270,20],[50270,125140,40],[125140,Infinity,45]], stdDed: 0 },
+  australia: { sym: 'A$', name: 'Australia', slabs: [[0,18200,0],[18200,45000,19],[45000,120000,32.5],[120000,180000,37],[180000,Infinity,45]], stdDed: 0, medicareLevy: 2 },
+  canada: { sym: 'CA$', name: 'Canada (Federal)', slabs: [[0,55867,15],[55867,111733,20.5],[111733,154906,26],[154906,220000,29],[220000,Infinity,33]], stdDed: 15705 },
+  germany: { sym: '€', name: 'Germany', slabs: [[0,10908,0],[10908,62810,14],[62810,277826,42],[277826,Infinity,45]], stdDed: 1200 },
+  uae: { sym: 'AED', name: 'UAE', slabs: [[0,Infinity,0]], stdDed: 0 },
+  singapore: { sym: 'S$', name: 'Singapore', slabs: [[0,20000,0],[20000,30000,2],[30000,40000,3.5],[40000,80000,7],[80000,120000,11.5],[120000,160000,15],[160000,200000,18],[200000,240000,19],[240000,280000,19.5],[280000,320000,20],[320000,500000,22],[500000,1000000,23],[1000000,Infinity,24]], stdDed: 0 }
+};
+
+function calcTax() {
+  const country = document.getElementById('taxCountry').value;
+  const data = TAX_DATA[country];
+  const regime = document.getElementById('taxRegime').value;
+  const regimeEl = document.getElementById('taxRegime');
+  
+  if (country === 'india') {
+    regimeEl.disabled = false;
+  } else {
+    regimeEl.disabled = true;
+    regimeEl.value = 'new';
+  }
+
+  const income = +document.getElementById('taxIncome').value || 0;
+  const dedInput = +document.getElementById('taxDeductions').value || 0;
+  const sym = data.sym;
+
+  let slabs, stdDed, cess = 0, rebate = 0, rebateLimit = 0, surcharges = [];
+  
+  if (country === 'india') {
+    const r = data[regime];
+    slabs = r.slabs; stdDed = r.stdDed; cess = r.cess;
+    rebate = r.rebate87A; rebateLimit = r.rebateLimit;
+    surcharges = r.surcharges;
+    var totalDed = regime === 'old' ? stdDed + dedInput : stdDed;
+  } else {
+    slabs = data.slabs; stdDed = data.stdDed;
+    var totalDed = stdDed + (country !== 'usa' ? 0 : dedInput);
+  }
+
+  const taxableIncome = Math.max(0, income - (totalDed || 0));
+  
+  let tax = 0, slabDetails = [];
+  for (let i = 0; i < slabs.length; i++) {
+    const [lo, hi, rate] = slabs[i];
+    if (taxableIncome <= lo) break;
+    const taxable = Math.min(taxableIncome, hi) - lo;
+    const slabTax = taxable * rate / 100;
+    tax += slabTax;
+    if (taxable > 0) {
+      slabDetails.push({ range: `${sym}${lo.toLocaleString()} – ${hi === Infinity ? 'above' : sym + hi.toLocaleString()}`, rate: rate + '%', amount: slabTax });
+    }
+  }
+
+  // Rebate (India)
+  if (country === 'india' && taxableIncome <= rebateLimit && tax <= rebate) tax = 0;
+  
+  // Surcharge (India)
+  let surcharge = 0;
+  if (country === 'india' && surcharges.length) {
+    for (const [threshold, rate] of surcharges) {
+      if (income > threshold) { surcharge = tax * rate / 100; break; }
+    }
+  }
+
+  // Cess / Medicare
+  const cessAmt = (tax + surcharge) * cess / 100;
+  const medicareAmt = country === 'australia' ? taxableIncome * (data.medicareLevy || 0) / 100 : 0;
+  const totalTax = tax + surcharge + cessAmt + medicareAmt;
+  const effectiveRate = income > 0 ? (totalTax / income) * 100 : 0;
+  const takeHome = income - totalTax;
+
+  document.getElementById('taxResults').innerHTML = `
+    <div class="result-box highlight">
+      <div class="res-label">Total Tax</div>
+      <div class="res-value accent">${fmt(totalTax, sym)}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Gross Income</div>
+      <div class="res-value">${fmt(income, sym)}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Taxable Income</div>
+      <div class="res-value">${fmt(taxableIncome, sym)}</div>
+    </div>
+    <div class="result-box info">
+      <div class="res-label">Take-home (Annual)</div>
+      <div class="res-value green">${fmt(takeHome, sym)}</div>
+      <div class="res-sub">${fmt(takeHome/12, sym)} / month</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Effective Tax Rate</div>
+      <div class="res-value ${effectiveRate > 25 ? 'danger' : ''}">${pct(effectiveRate)}</div>
+    </div>
+    ${surcharge > 0 ? `<div class="result-box"><div class="res-label">Surcharge</div><div class="res-value">${fmt(surcharge, sym)}</div></div>` : ''}
+    ${cessAmt > 0 ? `<div class="result-box"><div class="res-label">Cess (4%)</div><div class="res-value">${fmt(cessAmt, sym)}</div></div>` : ''}
+  `;
+
+  let slabHTML = '';
+  slabDetails.forEach(s => {
+    slabHTML += `<div class="tax-slab-row">
+      <span class="slab-range">${s.range}</span>
+      <span class="slab-rate">${s.rate}</span>
+      <span class="slab-amount">${sym}${Math.round(s.amount).toLocaleString()}</span>
+    </div>`;
+  });
+  if (!slabHTML) slabHTML = `<div class="tax-slab-row"><span class="slab-range" style="color:var(--text3);">No tax applicable at this income</span></div>`;
+  document.getElementById('taxSlabs').innerHTML = slabHTML;
+}
+
+// ==================== LOAN ====================
+let currentLoanType = 'home';
+const LOAN_DEFAULTS = { home: 8.5, personal: 12, commercial: 10, gold: 9 };
+
+function setLoanType(type, el) {
+  currentLoanType = type;
+  document.querySelectorAll('.loan-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('loanRate').value = LOAN_DEFAULTS[type];
+  document.getElementById('loanRateVal').textContent = LOAN_DEFAULTS[type] + '%';
+  calcLoan();
+}
+
+function updateLoanRate() {
+  const v = document.getElementById('loanRate').value;
+  document.getElementById('loanRateVal').textContent = parseFloat(v).toFixed(1) + '%';
+  calcLoan();
+}
+
+function calcLoan() {
+  const P = +document.getElementById('loanAmount').value || 0;
+  const years = +document.getElementById('loanTenure').value || 1;
+  const annualRate = +document.getElementById('loanRate').value;
+  const n = years * 12;
+  const r = annualRate / 12 / 100;
+  
+  let emi;
+  if (r === 0) emi = P / n;
+  else emi = P * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+  
+  const totalPay = emi * n;
+  const totalInt = totalPay - P;
+  const intPct = P > 0 ? (totalInt / totalPay) * 100 : 0;
+
+  document.getElementById('loanResults').innerHTML = `
+    <div class="result-box highlight">
+      <div class="res-label">Monthly EMI</div>
+      <div class="res-value accent">₹${Math.round(emi).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Principal</div>
+      <div class="res-value">₹${Math.round(P).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box danger">
+      <div class="res-label">Total Interest</div>
+      <div class="res-value danger">₹${Math.round(totalInt).toLocaleString('en-IN')}</div>
+      <div class="res-sub">${pct(intPct)} of total</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Total Payment</div>
+      <div class="res-value">₹${Math.round(totalPay).toLocaleString('en-IN')}</div>
+      <div class="res-sub">over ${years} years</div>
+    </div>
+  `;
+  window._loanEMI = emi; window._loanP = P; window._loanR = r; window._loanN = n;
+}
+
+let amortShown = false;
+function toggleAmort() {
+  amortShown = !amortShown;
+  document.getElementById('amortBtn').textContent = amortShown ? 'Hide table' : 'Show table';
+  const wrap = document.getElementById('amortTable');
+  if (!amortShown) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  
+  const {_loanEMI: emi, _loanP: P, _loanR: r, _loanN: n} = window;
+  let bal = P, rows = '';
+  const maxRows = Math.min(n, 60);
+  for (let i = 1; i <= maxRows; i++) {
+    const intPart = bal * r;
+    const prinPart = emi - intPart;
+    bal = Math.max(0, bal - prinPart);
+    rows += `<tr><td>${i}</td><td>₹${Math.round(emi).toLocaleString()}</td><td class="green">₹${Math.round(prinPart).toLocaleString()}</td><td class="red">₹${Math.round(intPart).toLocaleString()}</td><td class="accent">₹${Math.round(bal).toLocaleString()}</td></tr>`;
+  }
+  if (n > 60) rows += `<tr><td colspan="5" style="text-align:center;color:var(--text3);">... showing first 60 months of ${n}</td></tr>`;
+  
+  wrap.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Month</th><th>EMI</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+// ==================== INFLATION ====================
+let inflationItems = [
+  { name: 'Rice (1kg)', old: 40, cur: 62 },
+  { name: 'Petrol (1L)', old: 72, cur: 106 },
+  { name: 'Onion (1kg)', old: 20, cur: 45 }
+];
+
+function renderInflation() {
+  const el = document.getElementById('inflationItems');
+  el.innerHTML = inflationItems.map((item, i) => `
+    <div class="inflation-item">
+      <input type="text" value="${item.name}" placeholder="Item name" style="text-align:left;font-size:13px;" oninput="inflationItems[${i}].name=this.value;updateInflationResults()">
+      <input type="number" value="${item.old}" placeholder="Old ₹" oninput="inflationItems[${i}].old=+this.value;updateInflationResults()">
+      <input type="number" value="${item.cur}" placeholder="New ₹" oninput="inflationItems[${i}].cur=+this.value;updateInflationResults()">
+      <div class="inflation-result ${item.cur > item.old ? 'pos' : 'neg'}" id="infRes${i}">
+        ${item.old > 0 ? (((item.cur - item.old) / item.old) * 100).toFixed(1) + '%' : '—'}
+      </div>
+      <button class="remove-btn" onclick="inflationItems.splice(${i},1);renderInflation();updateInflationResults()" style="font-size:16px;background:none;border:none;color:var(--text3);cursor:pointer;">×</button>
+    </div>
+  `).join('') + `<div style="display:flex;gap:6px;font-size:11px;color:var(--text3);font-family:var(--mono);padding:4px 12px;"><span style="flex:1;">Item</span><span style="width:100px;">Old price (₹)</span><span style="width:100px;">New price (₹)</span><span style="width:90px;text-align:right;">Change</span></div>`;
+  updateInflationResults();
+}
+
+function addInflationItem() {
+  inflationItems.push({ name: 'New item', old: 100, cur: 120 });
+  renderInflation();
+}
+
+function updateInflationResults() {
+  const valid = inflationItems.filter(x => x.old > 0 && x.cur > 0);
+  if (!valid.length) return;
+  const avgInflation = valid.reduce((s, x) => s + ((x.cur - x.old) / x.old) * 100, 0) / valid.length;
+  const maxItem = valid.reduce((a, b) => ((b.cur-b.old)/b.old) > ((a.cur-a.old)/a.old) ? b : a);
+  const totalOld = valid.reduce((s, x) => s + x.old, 0);
+  const totalNew = valid.reduce((s, x) => s + x.cur, 0);
+
+  document.getElementById('inflationSummary').innerHTML = `
+    <div class="result-box highlight">
+      <div class="res-label">Avg Price Rise</div>
+      <div class="res-value accent">${avgInflation.toFixed(1)}%</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Total Old Cost</div>
+      <div class="res-value">₹${Math.round(totalOld).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box danger">
+      <div class="res-label">Total New Cost</div>
+      <div class="res-value danger">₹${Math.round(totalNew).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Extra Spending</div>
+      <div class="res-value">${fmt(totalNew - totalOld)}</div>
+    </div>
+    <div class="result-box info">
+      <div class="res-label">Most Inflated</div>
+      <div class="res-value" style="font-size:1rem;">${maxItem.name}</div>
+      <div class="res-sub">${(((maxItem.cur-maxItem.old)/maxItem.old)*100).toFixed(1)}% rise</div>
+    </div>
+  `;
+
+  // Update individual result spans
+  inflationItems.forEach((item, i) => {
+    const el = document.getElementById('infRes' + i);
+    if (el && item.old > 0) {
+      const ch = ((item.cur - item.old) / item.old) * 100;
+      el.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(1) + '%';
+      el.className = 'inflation-result ' + (ch > 0 ? 'pos' : 'neg');
+    }
+  });
+}
+
+// ==================== SIP ====================
+function updateSIPRate() {
+  document.getElementById('sipRateVal').textContent = parseFloat(document.getElementById('sipRate').value).toFixed(1) + '%';
+  calcSIP();
+}
+
+function calcSIP() {
+  const monthly = +document.getElementById('sipAmount').value || 0;
+  const years = +document.getElementById('sipYears').value || 1;
+  const annualRate = +document.getElementById('sipRate').value;
+  const r = annualRate / 12 / 100;
+  const n = years * 12;
+  
+  const maturity = monthly * (Math.pow(1+r, n) - 1) / r * (1 + r);
+  const invested = monthly * n;
+  const returns = maturity - invested;
+  const wealthRatio = invested > 0 ? maturity / invested : 1;
+
+  document.getElementById('sipResults').innerHTML = `
+    <div class="result-box highlight">
+      <div class="res-label">Maturity Value</div>
+      <div class="res-value accent">₹${Math.round(maturity).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Total Invested</div>
+      <div class="res-value">₹${Math.round(invested).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box info">
+      <div class="res-label">Est. Returns</div>
+      <div class="res-value green">₹${Math.round(returns).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Wealth Ratio</div>
+      <div class="res-value">${wealthRatio.toFixed(2)}x</div>
+    </div>
+  `;
+
+  // Bar viz
+  const vizEl = document.getElementById('sipViz');
+  vizEl.innerHTML = '';
+  const maxH = 80;
+  let runInv = 0, runMat = 0;
+  const step = Math.max(1, Math.floor(years / 10));
+  for (let y = step; y <= years; y += step) {
+    const mn = y * 12;
+    const mat = monthly * (Math.pow(1+r, mn) - 1) / r * (1 + r);
+    const inv = monthly * mn;
+    runInv = inv; runMat = mat;
+    const maxVal = maturity;
+    const iH = Math.max(4, (inv / maxVal) * maxH);
+    const rH = Math.max(0, (mat / maxVal) * maxH - iH);
+    const col = document.createElement('div');
+    col.style.cssText = `flex:1;display:flex;flex-direction:column;align-items:center;gap:0;`;
+    col.innerHTML = `<div style="height:${rH.toFixed(1)}px;width:100%;background:var(--accent);opacity:0.8;border-radius:3px 3px 0 0;"></div><div style="height:${iH.toFixed(1)}px;width:100%;background:var(--bg3);"></div>`;
+    vizEl.appendChild(col);
+  }
+}
+
+// ==================== FD/RD ====================
+let fdType = 'fd';
+function setFDType(t, el) {
+  fdType = t;
+  document.querySelectorAll('#panel-fd .loan-tab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('fdAmountLabel').textContent = t === 'fd' ? 'Principal Amount (₹)' : 'Monthly Deposit (₹)';
+  calcFD();
+}
+function updateFDRate() {
+  document.getElementById('fdRateVal').textContent = parseFloat(document.getElementById('fdRate').value).toFixed(2) + '%';
+  calcFD();
+}
+function calcFD() {
+  const P = +document.getElementById('fdAmount').value || 0;
+  const months = +document.getElementById('fdTenure').value || 1;
+  const annualRate = +document.getElementById('fdRate').value;
+  const n = +document.getElementById('fdFreq').value;
+
+  let maturity, invested;
+  if (fdType === 'fd') {
+    maturity = P * Math.pow(1 + annualRate / (n * 100), n * months / 12);
+    invested = P;
+  } else {
+    // RD
+    const r = annualRate / (n * 100);
+    maturity = P * (Math.pow(1 + r, months) - 1) / r * (1 + r);
+    invested = P * months;
+  }
+
+  const interest = maturity - invested;
+  const effectiveRate = invested > 0 ? (interest / invested) * 100 : 0;
+
+  document.getElementById('fdResults').innerHTML = `
+    <div class="result-box highlight">
+      <div class="res-label">Maturity Value</div>
+      <div class="res-value accent">₹${Math.round(maturity).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">${fdType === 'fd' ? 'Principal' : 'Total Deposited'}</div>
+      <div class="res-value">₹${Math.round(invested).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box info">
+      <div class="res-label">Interest Earned</div>
+      <div class="res-value green">₹${Math.round(interest).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Effective Return</div>
+      <div class="res-value">${pct(effectiveRate)}</div>
+      <div class="res-sub">over ${months} months</div>
+    </div>
+  `;
+  document.getElementById('fdProgressLabel').textContent = '100%';
+  document.getElementById('fdProgressBar').style.width = '100%';
+}
+
+// ==================== CURRENCY ====================
+let RATES_TO_INR = {};
+
+async function fetchRates() {
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/INR");
+    const data = await res.json();
+
+    if (data.result === "success") {
+      const rates = data.rates;
+
+      for (let currency in rates) {
+        RATES_TO_INR[currency] = 1 / rates[currency];
+      }
+
+      RATES_TO_INR["INR"] = 1;
+
+      if (typeof calcCurrency === "function") {
+  calcCurrency();
+}
+
+      const el = document.getElementById("rateUpdateTime");
+      if (el) {
+        el.innerText = "Last updated: " + new Date().toLocaleTimeString();
+      }
+    }
+  } catch (err) {
+    console.error("Error fetching rates:", err);
+  }
+}
+const CC_NAMES = { INR:'Indian Rupee',USD:'US Dollar',EUR:'Euro',GBP:'Brit. Pound',JPY:'Japanese Yen',AUD:'Aus. Dollar',CAD:'Can. Dollar',CHF:'Swiss Franc',CNY:'Chinese Yuan',SGD:'Singapore $',AED:'UAE Dirham',SAR:'Saudi Riyal',THB:'Thai Baht',MYR:'Malaysian Ringgit',IDR:'Indonesian Rupiah',KRW:'Korean Won',HKD:'HK Dollar',NZD:'NZ Dollar',ZAR:'S. African Rand',BRL:'Brazilian Real',MXN:'Mexican Peso',RUB:'Russian Ruble' };
+
+function initCurrency() {
+fetchRates(); //MUST be first
+  const from = document.getElementById('ccFrom');
+  const to = document.getElementById('ccTo');
+  Object.keys(RATES_TO_INR).forEach(k => {
+    from.innerHTML += `<option value="${k}" ${k==='USD'?'selected':''}>${k} — ${CC_NAMES[k]}</option>`;
+    to.innerHTML += `<option value="${k}" ${k==='INR'?'selected':''}>${k} — ${CC_NAMES[k]}</option>`;
+  });
+  calcCurrency();
+}
+
+function calcCurrency() {
+  function calcCurrency() {
+  if (!RATES_TO_INR || Object.keys(RATES_TO_INR).length === 0) 
+    return; // wait until rates load
+  }
+  const amt = +document.getElementById('ccAmount').value || 0;
+  const from = document.getElementById('ccFrom').value;
+  const to = document.getElementById('ccTo').value;
+  const inINR = amt * RATES_TO_INR[from];
+  const result = inINR / RATES_TO_INR[to];
+  const rate = RATES_TO_INR[from] / RATES_TO_INR[to];
+
+  document.getElementById('ccResults').innerHTML = `
+    <div class="result-box highlight" style="grid-column:span 2;">
+      <div class="res-label">${amt.toLocaleString()} ${from} =</div>
+      <div class="res-value accent" style="font-size:1.6rem;">${result.toLocaleString('en-IN', {maximumFractionDigits:4})} ${to}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">1 ${from}</div>
+      <div class="res-value" style="font-size:1rem;">${rate.toFixed(4)} ${to}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">1 ${to}</div>
+      <div class="res-value" style="font-size:1rem;">${(1/rate).toFixed(4)} ${from}</div>
+    </div>
+  `;
+}
+
+// ==================== NET WORTH ====================
+let nwAssets = [
+  { label: 'Bank savings', amount: 50000 },
+  { label: 'Mutual funds', amount: 80000 }
+];
+let nwLiabilities = [
+  { label: 'Education loan', amount: 200000 }
+];
+
+function renderNW() {
+  ['asset','liability'].forEach(type => {
+    const list = type === 'asset' ? nwAssets : nwLiabilities;
+    const el = document.getElementById(type === 'asset' ? 'assetList' : 'liabilityList');
+    el.innerHTML = list.map((item, i) => `
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">
+        <input type="text" value="${item.label}" style="flex:1;text-align:left;font-size:12px;" oninput="(${type==='asset'?'nwAssets':'nwLiabilities'})[${i}].label=this.value;calcNW()">
+        <input type="number" value="${item.amount}" style="width:90px;" oninput="(${type==='asset'?'nwAssets':'nwLiabilities'})[${i}].amount=+this.value;calcNW()">
+        <button onclick="${type==='asset'?'nwAssets':'nwLiabilities'}.splice(${i},1);renderNW()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;">×</button>
+      </div>`).join('');
+    calcNW();
+  });
+}
+
+function addNWItem(type) {
+  if (type === 'asset') nwAssets.push({ label: 'New asset', amount: 0 });
+  else nwLiabilities.push({ label: 'New liability', amount: 0 });
+  renderNW();
+}
+
+function calcNW() {
+  const totalA = nwAssets.reduce((s, x) => s + (+x.amount||0), 0);
+  const totalL = nwLiabilities.reduce((s, x) => s + (+x.amount||0), 0);
+  const nw = totalA - totalL;
+  const ratio = totalL > 0 ? totalA / totalL : Infinity;
+
+  document.getElementById('nwResults').innerHTML = `
+    <div class="result-box highlight">
+      <div class="res-label">Net Worth</div>
+      <div class="res-value ${nw >= 0 ? 'accent' : 'danger'}">₹${Math.round(Math.abs(nw)).toLocaleString('en-IN')}</div>
+      <div class="res-sub">${nw < 0 ? 'Negative — liabilities exceed assets' : 'Positive net worth'}</div>
+    </div>
+    <div class="result-box info">
+      <div class="res-label">Total Assets</div>
+      <div class="res-value green">₹${Math.round(totalA).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box danger">
+      <div class="res-label">Total Liabilities</div>
+      <div class="res-value danger">₹${Math.round(totalL).toLocaleString('en-IN')}</div>
+    </div>
+    <div class="result-box">
+      <div class="res-label">Asset/Liability Ratio</div>
+      <div class="res-value">${ratio === Infinity ? '∞' : ratio.toFixed(2)}x</div>
+    </div>
+  `;
+}
+
+// ==================== INIT ====================
+calcTax();
+calcLoan();
+renderInflation();
+calcSIP();
+calcFD();
+initCurrency();
+setInterval(fetchRates, 3600000);
+renderNW();
+</script>
+<script>
+async function convertCurrency() {
+  const amount = document.getElementById("amount").value;
+  const from = document.getElementById("fromCurrency").value;
+  const to = document.getElementById("toCurrency").value;
+
+  if (!amount) {
+    alert("Enter amount");
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`);
+    const data = await response.json();
+
+    const result = data.rates[to];
+
+    document.getElementById("result").innerText =
+      `${amount} ${from} = ${result} ${to}`;
+  } catch (error) {
+    document.getElementById("result").innerText = "Error fetching data";
+  }
+}
+</script>
+</body>
+</html>
+
